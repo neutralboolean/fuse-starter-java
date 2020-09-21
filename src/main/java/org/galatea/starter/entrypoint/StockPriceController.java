@@ -55,6 +55,6 @@ public class StockPriceController extends BaseRestController {
       key = processed.lowerKey(key);
     }
 
-    return processed.values();
+    return processed.descendingMap().values();
   }
 }
