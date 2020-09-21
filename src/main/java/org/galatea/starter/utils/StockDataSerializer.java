@@ -6,14 +6,14 @@ import com.fasterxml.jackson.databind.ser.std.StdSerializer;
 import java.io.IOException;
 import java.time.ZoneId;
 import java.time.ZonedDateTime;
-import org.galatea.starter.domain.MongoDocument;
+import org.galatea.starter.domain.StockData;
 
-public class MongoDocSerializer extends StdSerializer<MongoDocument> {
+public class StockDataSerializer extends StdSerializer<StockData> {
 
   /**
    * Blank default constructor.
    */
-  public MongoDocSerializer() {
+  public StockDataSerializer() {
     this(null);
   }
 
@@ -21,12 +21,12 @@ public class MongoDocSerializer extends StdSerializer<MongoDocument> {
    * Constructor for custom serializer for MongoDocument into JSON.
    * @param md MongoDocument
    */
-  public MongoDocSerializer(final Class<MongoDocument> md) {
+  public StockDataSerializer(final Class<StockData> md) {
     super(md);
   }
 
   @Override
-  public void serialize(final MongoDocument value, final JsonGenerator gen,
+  public void serialize(final StockData value, final JsonGenerator gen,
       final SerializerProvider provider) throws IOException {
     gen.writeStartObject();
     gen.writeStringField("date",

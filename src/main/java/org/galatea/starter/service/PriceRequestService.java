@@ -4,7 +4,7 @@ import java.util.TreeMap;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import net.sf.aspect4log.Log;
-import org.galatea.starter.domain.MongoDocument;
+import org.galatea.starter.domain.StockData;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
@@ -19,11 +19,11 @@ public class PriceRequestService {
   @Autowired
   private AlphaVantageService alphaVantageService;
 
-  protected TreeMap<String, MongoDocument> externalRequest(final String ticker, final int days) {
+  protected TreeMap<String, StockData> externalRequest(final String ticker, final int days) {
     return alphaVantageService.access(ticker, days);
   }
 
-  protected TreeMap<String, MongoDocument> internalRequest(final String ticker, final int days) {
+  protected TreeMap<String, StockData> internalRequest(final String ticker, final int days) {
     return null;
   }
 
@@ -36,7 +36,7 @@ public class PriceRequestService {
    * @param days int, number of days to be returned if possible
    * @return TreeMap, date of info as a String key; prices info for that day as MongoDocument values
    */
-  public TreeMap<String, MongoDocument> access(final String ticker, final int days) {
+  public TreeMap<String, StockData> access(final String ticker, final int days) {
     boolean isInternal = false;
 
     //check if can get map from internal repo

@@ -6,11 +6,11 @@ import java.time.Instant;
 import java.time.OffsetTime;
 import lombok.Data;
 import lombok.NoArgsConstructor;
-import org.galatea.starter.utils.MongoDocSerializer;
+import org.galatea.starter.utils.StockDataSerializer;
 
-@JsonSerialize(using = MongoDocSerializer.class)
+@JsonSerialize(using = StockDataSerializer.class)
 @NoArgsConstructor
-@Data public class MongoDocument {
+@Data public class StockData {
   //including extended hours
   public static OffsetTime NYSE_CLOSE_TIME_OFFSET = OffsetTime.parse("20:00:00-05:00");
 
