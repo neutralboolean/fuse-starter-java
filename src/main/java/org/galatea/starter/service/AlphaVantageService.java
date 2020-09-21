@@ -7,8 +7,11 @@ import java.io.IOException;
 import java.text.ParseException;
 import java.time.Instant;
 import java.time.LocalDate;
+import java.util.ArrayList;
 import java.util.Iterator;
+import java.util.List;
 import java.util.TreeMap;
+import java.util.stream.Collectors;
 import lombok.NonNull;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -39,7 +42,7 @@ public class AlphaVantageService {
    * @param days int, the number of days of stock price data to return
    * @return a String, gross mashup of proper JSON {in process of fixing}
    */
-  public TreeMap<String, StockData> access(final String symbol, final int days) {
+  public List<StockData> access(final String symbol, final int days) {
     String alphaVantageUrl
         = "https://www.alphavantage.co/query?function=TIME_SERIES_DAILY&symbol=" + symbol;
     String output = days > 100 ? "full" : "compact";
@@ -49,10 +52,13 @@ public class AlphaVantageService {
     assert response.getStatusCode() == HttpStatus.OK; // makes sure we got a clean response
     log.info("Logging the full request url: {}", requestUrl);
 
-    TreeMap<String, StockData> mongoDocumentMap = null;
+    List<StockData> result = null;
     //JACKSON TEST BLOCK
     try {
-      mongoDocumentMap = mapJsonGraph(objectMapper.readTree(response.getBody()));
+      List<StockData> stockDocs = mapJsonGraph(objectMapper.readTree(response.getBody()));
+      result = stockDocs.stream()
+          .limit(days)
+          .collect(Collectors.toList());
       //repository.insertMany(mongoDocumentMap.values(), symbol);
     } catch (JsonProcessingException jpe) {
       log.error("Failed to process JSON into MongoDocument in mapJsonGraph().");
@@ -61,26 +67,24 @@ public class AlphaVantageService {
     } catch (ParseException pe) {
       log.error("Thrown exception while parsing date for a MongoDocument", pe);
     }
-    //JACKSON TEST BLOCK
-    log.info("Testing output and @Data annotation of MongoDocuments:\n{}", mongoDocumentMap);
 
-
-    return mongoDocumentMap;
+    log.info("Testing output and @Data annotation of MongoDocuments:\n{}", result);
+    return result;
   }
   
-  private TreeMap<String, StockData> mapJsonGraph(final JsonNode root) throws
+  private List<StockData> mapJsonGraph(final JsonNode root) throws
       JsonProcessingException, ParseException {
     JsonNode timeSeriesField = root.get("Time Series (Daily)");
     Iterator<String> dates = timeSeriesField.fieldNames();
-    TreeMap<String, StockData> treeMap = new TreeMap<>();
+    ArrayList<StockData> list = new ArrayList<>();
     while (dates.hasNext()) {
       String date = dates.next();
       JsonNode value = timeSeriesField.get(date);
       StockData md = objectMapper.treeToValue(value, StockData.class);
       md.setDate(Instant.from(LocalDate.parse(date).atTime(StockData.NYSE_CLOSE_TIME_OFFSET)));
-      treeMap.put(date, md);
+      list.add(md);
     }
 
-    return treeMap;
+    return list;
   }
 }

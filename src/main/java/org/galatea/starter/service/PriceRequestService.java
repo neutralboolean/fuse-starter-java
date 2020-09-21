@@ -1,5 +1,6 @@
 package org.galatea.starter.service;
 
+import java.util.List;
 import java.util.TreeMap;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -19,11 +20,11 @@ public class PriceRequestService {
   @Autowired
   private AlphaVantageService alphaVantageService;
 
-  protected TreeMap<String, StockData> externalRequest(final String ticker, final int days) {
+  protected List<StockData> externalRequest(final String ticker, final int days) {
     return alphaVantageService.access(ticker, days);
   }
 
-  protected TreeMap<String, StockData> internalRequest(final String ticker, final int days) {
+  protected List<StockData> internalRequest(final String ticker, final int days) {
     return null;
   }
 
@@ -36,8 +37,9 @@ public class PriceRequestService {
    * @param days int, number of days to be returned if possible
    * @return TreeMap, date of info as a String key; prices info for that day as MongoDocument values
    */
-  public TreeMap<String, StockData> access(final String ticker, final int days) {
+  public List<StockData> access(final String ticker, final int days) {
     boolean isInternal = false;
+
 
     //check if can get map from internal repo
 

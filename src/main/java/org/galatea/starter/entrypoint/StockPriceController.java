@@ -1,10 +1,7 @@
 package org.galatea.starter.entrypoint;
 
-import com.fasterxml.jackson.databind.ObjectMapper;
-import com.fasterxml.jackson.databind.node.ArrayNode;
-import com.fasterxml.jackson.databind.node.ObjectNode;
 import java.util.Collection;
-import java.util.TreeMap;
+import java.util.List;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.galatea.starter.domain.StockData;
@@ -37,24 +34,9 @@ public class StockPriceController extends BaseRestController {
           String.format("'days' parameter should be greater than 1. Was %d", days));
     }
 
-    TreeMap<String, StockData> processed = priceRequestService.access(ticker, days);
+    List<StockData> processed = priceRequestService.access(ticker, days);
     log.info("Returned from PriceRequestService with map of MongoDocuments.");
     assert processed != null && !processed.isEmpty(); //this might not be assertable in the future
-    // constructing the array of 'days'-limited stock price results
-    ObjectMapper objectMapper = new ObjectMapper();
-    ObjectNode root = objectMapper.createObjectNode();
-    int iterations = days > processed.size() ? processed.size() : days;
-    ArrayNode jsonArrayRoot = root.putArray(String.format("%s Daily Stock Prices (%d)",
-        ticker.toUpperCase(), iterations));
-    String key = processed.lastKey();
-    // serializes each entry as a JSON object, up to iterations
-    for (int i = 0; i < iterations; i++) {
-      ObjectNode objectNode = objectMapper.createObjectNode();
-      objectNode.putPOJO("prices (USD)", processed.get(key)); // converts MongoDoc to JSON
-      jsonArrayRoot.add(objectNode);
-      key = processed.lowerKey(key);
-    }
-
-    return processed.descendingMap().values();
+    return processed;
   }
 }
